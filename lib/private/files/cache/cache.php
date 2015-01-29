@@ -73,6 +73,13 @@ class Cache {
 		}
 
 		if (!isset(self::$mimetypeIds[$mime])) {
+			// Before trying to insert, we refresh our mimetype cache,
+			// to ensure there was no race condition
+			self::$mimetypeIds = self::$mimetypes = array();
+			self::loadMimetypes();
+		}
+
+		if (!isset(self::$mimetypeIds[$mime])) {
 			try {
 				$result = \OC_DB::executeAudited('INSERT INTO `*PREFIX*mimetypes`(`mimetype`) VALUES(?)', array($mime));
 				self::$mimetypeIds[$mime] = \OC_DB::insertid('*PREFIX*mimetypes');
